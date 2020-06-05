@@ -111,10 +111,17 @@ class Trainer():
 
             with torch.set_grad_enabled(True):
                 # Forward
-                logits = self.model(inputs, lens, mask, labels)
+                logits, hidden_states, attention = self.model(inputs, lens, mask, labels)
+
+                fname_hidden = f'./save/embeddings/train_hidden_{iters_per_epoch}.pt'
+                fname_attention = f'./save/embeddings/train_attention_{iters_per_epoch}.pt'
+
+                torch.save(hidden_states, fname_hidden)
+                torch.save(attention, fname_attention)
+
                 _loss = self.criterion(logits, labels)
                 loss += _loss.item()
-                y_pred = logits.argmax(dim=1).cpu().numpy()
+                y_pred = logits.argmax(dim=1).cpu().detach().numpy()
 
                 if y_pred_all is None:
                     y_pred_all = y_pred
@@ -141,6 +148,14 @@ class Trainer():
             self.best_train_f1 = f1
 
     def test(self):
+
+        # load existing model from a file
+        # model_file = './save/models/a_bert_0.8013860020575234_seed19951126.pt'
+        # print('your model is: {}'.format(model_file))
+        # # model_file = './save/models/all_2020-Feb-20_13:33:56.pt'
+        # saved_model = load(model_file)
+        # self.model.load_state_dict(saved_model, strict=False)
+
         self.model.eval()
         dataloader = self.dataloaders['test']
         y_pred_all = None
@@ -149,6 +164,10 @@ class Trainer():
         iters_per_epoch = 0
         for inputs, lens, mask, labels in tqdm(dataloader, desc='Testing'):
             iters_per_epoch += 1
+
+            # to decode id to a twitt
+            # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+            # tw = tokenizer.decode(inputs[0])  # 1st tweet in a 1st batch
 
             if labels_all is None:
                 labels_all = labels.numpy()
@@ -161,7 +180,16 @@ class Trainer():
             labels = labels.to(device=self.device)
 
             with torch.set_grad_enabled(False):
-                logits = self.model(inputs, lens, mask, labels)
+
+                logits, hidden_states, attention = self.model(inputs, lens, mask, labels)
+                # logits = self.model(inputs, lens, mask, labels)
+
+                fname_hidden = f'./save/embeddings/test_hidden_{iters_per_epoch}.pt'
+                fname_attention = f'./save/embeddings/test_attention_{iters_per_epoch}.pt'
+
+                torch.save(hidden_states, fname_hidden)
+                torch.save(attention, fname_attention)
+
                 _loss = self.criterion(logits, labels)
                 y_pred = logits.argmax(dim=1).cpu().numpy()
                 loss += _loss.item()

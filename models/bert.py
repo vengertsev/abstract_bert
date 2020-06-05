@@ -10,7 +10,9 @@ class BERT(nn.Module):
             f'bert-{model_size}-uncased',
             num_labels=num_labels,
             hidden_dropout_prob=args['hidden_dropout'],
-            attention_probs_dropout_prob=args['attention_dropout']
+            attention_probs_dropout_prob=args['attention_dropout'],
+            output_hidden_states=True,  # DV
+            output_attentions=True  # DV
         )
 
         # Freeze embeddings' parameters for saving memory
@@ -21,7 +23,13 @@ class BERT(nn.Module):
         outputs = self.model(inputs, attention_mask=mask)
         logits = outputs[0]
         # return loss, logits
-        return logits
+
+        # print(f'outputs[0] = {len(outputs[0])}, outputs[1] = {len(outputs[1])}, outputs[2] = {len(outputs[2])}')
+        # print(f'outputs[1] = {type(outputs[1][0])}, outputs[2] = {type(outputs[2][0])}')
+        # print(f'outputs[1] = {outputs[1][0].size()}, outputs[2] = {outputs[2][0].size()}')
+
+        return outputs  # logits
+
 
 class RoBERTa(nn.Module):
     def __init__(self, model_size, args, num_labels=2):

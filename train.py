@@ -1,3 +1,7 @@
+# in WSL
+# source activate py37
+# python train.py -bs=32 -lr=3e-6 -ep=5 -pa=3 --model=bert --task=a --clip --cuda=1
+
 import os
 import numpy as np
 import torch
@@ -139,7 +143,7 @@ if __name__ == '__main__':
         patience=patience,
         task_name=task,
         model_name=model_name,
-        final=args['add_final'],
+        final=False,  # args['add_final'],
         seed=args['seed']
     )
 
