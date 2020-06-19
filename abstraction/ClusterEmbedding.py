@@ -12,3 +12,7 @@ class ClusterEmbedding:
     @staticmethod
     def get_clusters_stats():
         pass
+
+    @staticmethod
+    def visualize_clusters_stats():
+        pass
