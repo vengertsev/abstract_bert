@@ -5,6 +5,7 @@ from numpy import save
 import os
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from matplotlib import pyplot as plt
 
 
@@ -36,6 +37,7 @@ class ClusterEmbedding:
 
     @staticmethod
     def _reduce_dim_pca(x):
+        x = StandardScaler().fit_transform(x)
         pca = PCA(n_components=120)
         pca.fit(x)
         print(f'pca.singular_values_={pca.singular_values_}')
