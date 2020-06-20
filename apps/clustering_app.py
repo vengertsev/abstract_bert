@@ -44,6 +44,12 @@ def data():
 
     X = TSNE(n_components=2, perplexity=20, random_state=17).fit_transform(x2)
 
+    # TODO:
+    # do clustering in after PCA domain!!!
+    # scale
+    # do dbscan
+    # color by clusters in t-sne plot - don't cluster in t-sne??? because in t-sne dimensions make no sense
+
     return X
 
 
