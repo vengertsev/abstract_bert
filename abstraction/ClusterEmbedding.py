@@ -6,7 +6,8 @@ import os
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from matplotlib import pyplot as plt
+from sklearn.cluster import DBSCAN
+import matplotlib.pyplot as plt
 
 
 class ClusterEmbedding:
@@ -48,13 +49,62 @@ class ClusterEmbedding:
         return x2
 
     @staticmethod
-    def cluster_embeddings(fname_merged_embedding, fout, clustering_method):
-        pass
+    def cluster_embeddings(fname, fout, clustering_method):
+        df_x = np.load(fname)
+        if clustering_method == 'dbscan':
+            cluster_labels = ClusterEmbedding._cluster_dbscan(df_x)
+            return cluster_labels
+
+
+    @staticmethod
+    def _cluster_dbscan(x):
+        # TODO: tune epsilon
+        # TODO: distance histogram and find quantiles for epsilon - try all metrics sklearn.metrics.pairwise
+        # TODO: find the right metric
+        clustering = DBSCAN(eps=25, min_samples=5).fit(x)
+        unique_elements, counts_elements = np.unique(clustering.labels_, return_counts=True)
+        print("Frequency of unique values of the said array:")
+        print(np.asarray((unique_elements, counts_elements)))
+        return clustering.labels_
 
     @staticmethod
     def get_clusters_stats():
         pass
 
     @staticmethod
-    def visualize_clusters_stats():
-        pass
+    def _pltcolor(lst):
+        cols = []
+        for l in lst:
+            if l == 0:
+                cols.append('red')
+            elif l == 1:
+                cols.append('blue')
+            elif l == 2:
+                cols.append('green')
+            elif l == 3:
+                cols.append('yellow')
+            elif l == 4:
+                cols.append('c')
+            elif l == 5:
+                cols.append('lime')
+            elif l == 6:
+                cols.append('slateblue')
+            elif l == 7:
+                cols.append('darkorange')
+            elif l == 8:
+                cols.append('lightcoral')
+            elif l == 9:
+                cols.append('teal')
+            elif l == 10:
+                cols.append('olive')
+            else:
+                cols.append('black')
+        return cols
+
+    @staticmethod
+    def visualize_clusters(cluster_labels, fout, fname):
+        x = np.load(fname)
+        colors = ClusterEmbedding._pltcolor(cluster_labels)
+        x3 = TSNE(n_components=2, perplexity=100, random_state=17).fit_transform(x)
+        plt.scatter(x3[:, 0], x3[:, 1], c=colors)
+        plt.savefig(fout, dpi=150)

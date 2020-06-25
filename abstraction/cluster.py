@@ -18,22 +18,25 @@ sample_size = bs*100  # number of Twitts that are analysed (max is ~13200)
 dim_red_method = 'pca'
 clustering_method = 'dbscan'
 
-# merge embeddings per layer
-for layer in range(0, n_hid_layers):
-    fout = f'{base_folder}/save/merged_embeddings/df_train_hid_{layer}.npy'
-    ClusterEmbedding.merge_embeddings(fnames_hid_train, fout, layer, expected_size)
+# # merge embeddings per layer
+# for layer in range(8, n_hid_layers):
+#     fout = f'{base_folder}/save/merged_embeddings/df_train_hid_{layer}.npy'
+#     ClusterEmbedding.merge_embeddings(fnames_hid_train, fout, layer, expected_size)
 
-# reduce dimension
-for layer in range(0, n_hid_layers):
-    fname_merged_embedding = f'{base_folder}/save/merged_embeddings/df_train_hid_{layer}.npy'
-    fout = f'{base_folder}/save/clusters/df_{dim_red_method}_{layer}.npy'
-    ClusterEmbedding.reduce_dimension(fname_merged_embedding, fout, sample_size, dim_red_method)
+# # reduce dimension
+# for layer in range(0, n_hid_layers):
+#     fname_merged_embedding = f'{base_folder}/save/merged_embeddings/df_train_hid_{layer}.npy'
+#     fout = f'{base_folder}/save/clusters/df_{dim_red_method}_{layer}.npy'
+#     ClusterEmbedding.reduce_dimension(fname_merged_embedding, fout, sample_size, dim_red_method)
 
 # clustering
 for layer in range(0, n_hid_layers):
-    fname_dim_reduced = f'{base_folder}/save/cluster/df_{dim_red_method}_{layer}.npy'
+    print(f'============= layer={layer} ===============')
+    fname_dim_reduced = f'{base_folder}/save/clusters/df_{dim_red_method}_{layer}.npy'
     fout = f'{base_folder}/save/clusters/df_{clustering_method}_{layer}.npy'
-    ClusterEmbedding.cluster_embeddings(fname_dim_reduced, fout, clustering_method)
+    cluster_labels = ClusterEmbedding.cluster_embeddings(fname_dim_reduced, fout, clustering_method)
+    fout = f'{base_folder}/save/clusters/{clustering_method}_{layer}.png'
+    ClusterEmbedding.visualize_clusters(cluster_labels, fout, fname_dim_reduced)
 
 # visualization is done in the app
 
