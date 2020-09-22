@@ -26,25 +26,25 @@ class ClusterEmbedding:
         save(fout, df_x)
 
     @staticmethod
-    def reduce_dimension(fname_merged_embedding, fout, sample_size, dim_red_method):
+    def reduce_dimension(fname_merged_embedding, fout, sample_size, dim_red_method, pca_keep):
         df_x = np.load(fname_merged_embedding, mmap_mode='r')
         x = df_x[0:sample_size, :, :]
         print(f'sampled input to dim reduction:{x.shape}')
 
         if dim_red_method == 'pca':
             x = x.reshape(sample_size, -1)
-            df = ClusterEmbedding._reduce_dim_pca(x)
+            df = ClusterEmbedding._reduce_dim_pca(x, pca_keep)
             save(fout, df)
 
     @staticmethod
-    def _reduce_dim_pca(x):
+    def _reduce_dim_pca(x, pca_keep):
         x = StandardScaler().fit_transform(x)
         pca = PCA(n_components=120)
         pca.fit(x)
         print(f'pca.singular_values_={pca.singular_values_}')
         print(f'pca.singular_values_[0]={pca.singular_values_[0]}')
         print(f'pca.singular_values_[100]={pca.singular_values_[100]}')
-        pca_keep = 100
+
         x2 = PCA(n_components=pca_keep).fit_transform(x)
         return x2
 
@@ -106,5 +106,6 @@ class ClusterEmbedding:
         x = np.load(fname)
         colors = ClusterEmbedding._pltcolor(cluster_labels)
         x3 = TSNE(n_components=2, perplexity=100, random_state=17).fit_transform(x)
+        plt.clf()
         plt.scatter(x3[:, 0], x3[:, 1], c=colors)
         plt.savefig(fout, dpi=150)
